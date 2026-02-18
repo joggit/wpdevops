@@ -4,9 +4,8 @@ Pull a WordPress image from **Docker Hub** and run it with MySQL. Use the **offi
 
 ## Flow
 
-1. **Default:** Set `IMAGE=wordpress:latest` in `.env` to use the official WordPress image from Docker Hub (no login needed).
-2. **Your own image:** Build and push from the wordpress repo (e.g. to Docker Hub as `YOUR_USER/wordpress-app:latest`). Set `IMAGE=YOUR_USER/wordpress-app:latest` in `.env`.
-3. **This repo (wpdevops):** On the server, run `./deploy.sh` to pull the image and start the stack.
+1. **Build (from wpdevops):** Use **Actions → Build and push WordPress image → Run workflow**. Enter your **WordPress repo** (e.g. `myorg/wordpress`). The workflow checks out that repo, builds the image, and pushes to GHCR and Docker Hub (if `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets are set).
+2. **Run on production:** Set `IMAGE=YOUR_DOCKERHUB_USER/wordpress-app:latest` in `.env`, then on the server run `./deploy.sh` to pull and start the stack.
 
 ## Setup on production server
 
@@ -30,9 +29,20 @@ Pull a WordPress image from **Docker Hub** and run it with MySQL. Use the **offi
 4. Point nginx at the app:
    - Proxy your domain to `http://127.0.0.1:${PORT}` (e.g. `http://127.0.0.1:9080`).
 
+## Build and push image (wpdevops workflow)
+
+1. In the **wpdevops** repo on GitHub go to **Actions**.
+2. In the left sidebar click **Build and push WordPress image**.
+3. Click **Run workflow** (right side).
+4. Set **WordPress repo** to your wordpress repo (e.g. `your-username/wordpress` or `your-org/wordpress`).
+5. Optionally set **Theme slug** (e.g. `seese`); default is `wordpress-starter`.
+6. Click the green **Run workflow**.
+
+The workflow checks out the wordpress repo, builds the Docker image, and pushes to GitHub Container Registry and to Docker Hub (if you added `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` under **Settings → Secrets and variables → Actions**). If the wordpress repo is private and in another org, add a **REPO_ACCESS_TOKEN** secret (a PAT with `repo` scope) so the workflow can clone it.
+
 ## Deploy updates (CI/CD)
 
-After CI in the wordpress repo has built and pushed a new image:
+After the workflow above (or any CI) has built and pushed a new image:
 
 ```bash
 ./deploy.sh
