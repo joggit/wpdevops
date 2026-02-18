@@ -1,0 +1,10 @@
+.git
+.github
+.env
+.env.*
+*.md
+*.sql
+backups
+docker-compose*.yml
+deploy.sh
+env.example

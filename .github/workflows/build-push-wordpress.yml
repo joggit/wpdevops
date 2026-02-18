@@ -1,15 +1,10 @@
-# Build WordPress app image from the wordpress repo and push to GHCR + Docker Hub.
-# Run from wpdevops: Actions -> Build and push WordPress image -> Run workflow.
-# Set "WordPress repo" to your wordpress repo (e.g. myorg/wordpress). Same-org private repos:
-# use a PAT with repo scope in a secret (e.g. REPO_ACCESS_TOKEN) and pass it to checkout.
+# Build WordPress app image from this repo (wpdevops) and push to GHCR + Docker Hub.
+# This repo must contain Dockerfile, theme/, and plugins/. Run: Actions -> Build and push WordPress image -> Run workflow.
 name: Build and push WordPress image
 
 on:
   workflow_dispatch:
     inputs:
-      wordpress_repo:
-        description: 'WordPress repo (owner/name, e.g. myorg/wordpress)'
-        required: true
       theme_slug:
         description: 'Theme slug (e.g. seese or wordpress-starter)'
         required: false
@@ -24,11 +19,13 @@ jobs:
   build-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout WordPress repo
+      - name: Checkout wpdevops
         uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.inputs.wordpress_repo }}
-          token: ${{ secrets.REPO_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Verify Dockerfile and theme
+        run: |
+          if [ ! -f Dockerfile ]; then echo "::error::No Dockerfile in this repo. Add Dockerfile and theme/ to wpdevops."; exit 1; fi
+          if [ ! -d theme ]; then echo "::error::No theme/ in this repo. Add theme/ to wpdevops."; exit 1; fi
 
       - name: Set theme slug
         id: theme

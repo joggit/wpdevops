@@ -31,14 +31,16 @@ Pull a WordPress image from **Docker Hub** and run it with MySQL. Use the **offi
 
 ## Build and push image (wpdevops workflow)
 
+This repo is the single place for both the app and the pipeline: put your **theme** in `theme/`, **plugins** in `plugins/`, and the workflow builds the image from here.
+
 1. In the **wpdevops** repo on GitHub go to **Actions**.
-2. In the left sidebar click **Build and push WordPress image**.
+2. Click **Build and push WordPress image** in the left sidebar.
 3. Click **Run workflow** (right side).
-4. Set **WordPress repo** to your wordpress repo (e.g. `your-username/wordpress` or `your-org/wordpress`).
-5. Optionally set **Theme slug** (e.g. `seese`); default is `wordpress-starter`.
+4. Optionally set **Theme slug** (must match the folder name under `theme/`; default is `wordpress-starter`). If your theme lives in a subfolder like `theme/seese/`, use `seese`.
+5. Leave **Also push to Docker Hub** checked if you use Docker Hub (and have set `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` under **Settings → Secrets and variables → Actions**).
 6. Click the green **Run workflow**.
 
-The workflow checks out the wordpress repo, builds the Docker image, and pushes to GitHub Container Registry and to Docker Hub (if you added `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` under **Settings → Secrets and variables → Actions**). If the wordpress repo is private and in another org, add a **REPO_ACCESS_TOKEN** secret (a PAT with `repo` scope) so the workflow can clone it.
+The workflow checks out wpdevops, builds the Docker image from `Dockerfile` + `theme/` + `plugins/`, and pushes to GitHub Container Registry and to Docker Hub.
 
 ## Deploy updates (CI/CD)
 

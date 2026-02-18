@@ -1,0 +1,7 @@
+<?php ?>
+<footer class="site-footer">
+  <div class="site-container">
+    <p>&copy; <?php echo date( 'Y' ); ?> <a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a></p>
+  </div>
+</footer>
+<?php wp_footer(); ?></body></html>
