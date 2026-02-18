@@ -1,0 +1,41 @@
+# Production: pull WordPress app image and run with MySQL.
+# IMAGE: wordpress:latest (default, Docker Hub) or your image (e.g. USER/wordpress-app:latest). Set in .env.
+services:
+  wordpress:
+    image: ${IMAGE:-wordpress:latest}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "chown -R www-data:www-data /var/www/html/wp-content/uploads 2>/dev/null || true && exec /usr/local/bin/docker-entrypoint.sh apache2-foreground"
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: ${WP_DB_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-wordpress}
+      WORDPRESS_DB_NAME: ${WP_DB_NAME:-wordpress}
+    volumes:
+      - wp_uploads:/var/www/html/wp-content/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: ${WP_DB_NAME:-wordpress}
+      MYSQL_USER: ${WP_DB_USER:-wordpress}
+      MYSQL_PASSWORD: ${WP_DB_PASSWORD:-wordpress}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - wp_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  wp_data:
+  wp_uploads:
