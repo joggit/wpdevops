@@ -42,6 +42,8 @@ This repo is the single place for both the app and the pipeline: put your **them
 
 The workflow checks out wpdevops, builds the Docker image from `Dockerfile` + `theme/` + `plugins/`, and pushes to GitHub Container Registry and to Docker Hub.
 
+**If GHCR push fails with “installation not allowed to Create organization package”:** Your org may block the default token from creating packages. Fix it in one of these ways: (1) **Use a PAT for GHCR:** Create a Personal Access Token (GitHub → Settings → Developer settings → Personal access tokens) with `write:packages`, add it as a repo secret named **GHCR_TOKEN**. The workflow will use it to push to GHCR. (2) **Ask an org admin** to allow workflow packages: Organization → Settings → Actions → General → Workflow permissions, and ensure Packages allow creation. (3) **Use only Docker Hub:** If you only need the image on Docker Hub, you can ignore the GHCR error as long as the “Push to Docker Hub” step runs after; set `IMAGE=YOUR_DOCKERHUB_USER/wordpress-app:latest` on the server.
+
 ## Deploy updates (CI/CD)
 
 After the workflow above (or any CI) has built and pushed a new image:
